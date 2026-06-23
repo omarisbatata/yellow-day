@@ -1,0 +1,38 @@
+[
+    {
+        "id": 1,
+        "product": "Product A",
+        "quantity": 2,
+        "totalPrice": 39.98,
+        "customer": {
+            "name": "John Doe",
+            "email": "john.doe@example.com",
+            "address": "123 Main St, Anytown, USA"
+        },
+        "date": "2023-10-01"
+    },
+    {
+        "id": 2,
+        "product": "Product B",
+        "quantity": 1,
+        "totalPrice": 19.99,
+        "customer": {
+            "name": "Jane Smith",
+            "email": "jane.smith@example.com",
+            "address": "456 Elm St, Othertown, USA"
+        },
+        "date": "2023-10-02"
+    },
+    {
+        "id": 3,
+        "product": "Product C",
+        "quantity": 3,
+        "totalPrice": 59.97,
+        "customer": {
+            "name": "Alice Johnson",
+            "email": "alice.johnson@example.com",
+            "address": "789 Oak St, Sometown, USA"
+        },
+        "date": "2023-10-03"
+    }
+]

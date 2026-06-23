@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text">
+                    <h1>Yellow Day</h1>
+                    <span>صيدليتك اونلاين</span>
+                </div>
+            </div>
+            <div class="user-menu">
+                <a href="index.html">الرئيسية</a>
+                <a href="cart.html">🛒 <span id="cartCount">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container">
+        <h2>إنشاء حساب جديد</h2>
+        
+        <form id="signupForm">
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="fullName" placeholder="أدخل اسمك الكامل" required>
+            </div>
+            
+            <div class="form-group">
+                <label>رقم الهاتف</label>
+                <input type="tel" id="phone" placeholder="09XXXXXXXX" required>
+            </div>
+            
+            <div class="form-group">
+                <label>المحافظة</label>
+                <select id="governorate">
+                    <option value="">اختر المحافظة</option>
+                    <option>دمشق</option>
+                    <option>ريف دمشق</option>
+                    <option>حلب</option>
+                    <option>حمص</option>
+                    <option>حماة</option>
+                    <option>اللاذقية</option>
+                    <option>طرطوس</option>
+                    <option>دير الزور</option>
+                    <option>الرقة</option>
+                    <option>الحسكة</option>
+                    <option>إدلب</option>
+                    <option>درعا</option>
+                    <option>السويداء</option>
+                    <option>القنيطرة</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>العنوان التفصيلي</label>
+                <textarea id="address" rows="3" placeholder="الشارع - الحي - أقرب معلم"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="password" placeholder="أدخل كلمة مرور" required minlength="6">
+            </div>
+            
+            <button type="submit" class="btn">إنشاء الحساب</button>
+        </form>
+        
+        <p class="link-text">لديك حساب؟ <a href="login.html">تسجيل الدخول</a></p>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html>

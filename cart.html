@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<script src="js/supabase.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة التسوق - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/supabase.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text"><h1>Yellow Day</h1></div>
+            </div>
+            <div class="user-menu">
+                <a href="index.html">الرئيسية</a>
+                <a href="account.html">حسابي</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container" style="max-width: 800px;">
+        <h2>🛒 سلة التسوق</h2>
+        
+        <div id="cartItems">
+            <!-- Cart items rendered here -->
+        </div>
+        
+        <div id="cartEmpty" style="text-align: center; padding: 40px; display: none;">
+            <p style="font-size: 18px; color: #888;">السلة فارغة</p>
+            <a href="index.html" class="btn" style="display: inline-block; width: auto; margin-top: 20px;">تصفح المنتجات</a>
+        </div>
+        
+        <div id="cartSummary" style="display: none;">
+            <div class="total-row">
+                <span>المجموع الكلي:</span>
+                <span id="cartTotal">0 <span style="font-size: 14px;">دولار</span></span>
+            </div>
+            <button class="btn" onclick="proceedToCheckout()">متابعة الشراء</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="window.location.href='index.html'">مواصلة التسوق</button>
+        </div>
+    </div>
+
+    <script src="js/cart.js"></script>
+</body>
+</html>

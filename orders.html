@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الطلبات - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text">
+                    <h1>Yellow Day</h1>
+                    <span>لوحة تحكم الطلبات</span>
+                </div>
+            </div>
+            <div class="user-menu">
+                <a href="index.html">المتجر</a>
+            </div>
+        </div>
+    </header>
+
+    <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
+        <h2>📋 جميع الطلبات</h2>
+        
+        <div style="margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn" style="width: auto;" onclick="refreshOrders()">🔄 تحديث</button>
+            <button class="btn btn-outline" style="width: auto;" onclick="clearOrders()">🗑️ مسح الكل</button>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="orders-table" id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>التاريخ</th>
+                        <th>العميل</th>
+                        <th>الهاتف</th>
+                        <th>المحافظة</th>
+                        <th>العنوان</th>
+                        <th>المنتجات</th>
+                        <th>المجموع</th>
+                        <th>الحالة</th>
+                        <th>إجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <!-- Orders loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <p id="noOrders" style="text-align: center; color: #888; padding: 40px; display: none;">لا توجد طلبات حالياً</p>
+    </div>
+
+    <script>
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('yellowDayOrders') || '[]');
+            const tbody = document.getElementById('ordersBody');
+            const noOrders = document.getElementById('noOrders');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '';
+                noOrders.style.display = 'block';
+                return;
+            }
+            
+            noOrders.style.display = 'none';
+            
+            tbody.innerHTML = orders.reverse().map(order => {
+                const itemsList = order.items.map(item => {
+                    const productNames = {1: 'فيروجلوبين', 2: 'سيلداز 200'};
+                    return `${productNames[item.productId] || 'منتج'} × ${item.quantity}`;
+                }).join('<br>');
+                
+                return `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td>${order.date}</td>
+                        <td>${order.customer.name}</td>
+                        <td><a href="https://wa.me/963${order.customer.phone.replace(/^0/, '')}" target="_blank">${order.customer.phone}</a></td>
+                        <td>${order.customer.governorate}</td>
+                        <td>${order.customer.address}</td>
+                        <td>${itemsList}</td>
+                        <td><strong>${order.total} دولار</strong></td>
+                        <td>
+                            <select onchange="updateStatus(${order.id}, this.value)" style="padding: 5px; border-radius: 5px;">
+                                <option ${order.status === 'جديد' ? 'selected' : ''}>جديد</option>
+                                <option ${order.status === 'قيد التجهيز' ? 'selected' : ''}>قيد التجهيز</option>
+                                <option ${order.status === 'تم التوصيل' ? 'selected' : ''}>تم التوصيل</option>
+                                <option ${order.status === 'ملغي' ? 'selected' : ''}>ملغي</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button onclick="openWhatsApp('${order.customer.phone}', ${order.id})" style="background: #25D366; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">واتساب</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function updateStatus(orderId, newStatus) {
+            const orders = JSON.parse(localStorage.getItem('yellowDayOrders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                order.status = newStatus;
+                localStorage.setItem('yellowDayOrders', JSON.stringify(orders));
+            }
+        }
+        
+        function openWhatsApp(phone, orderId) {
+            const orders = JSON.parse(localStorage.getItem('yellowDayOrders') || '[]');
+            const order = orders.find(o => o.id === orderId);
+            if (order) {
+                const cleanPhone = phone.replace(/^0/, '');
+                let msg = `مرحباً ${order.customer.name}،%0A`;
+                msg += `بخصوص طلبك رقم ${order.id}%0A`;
+                msg += `الحالة: ${order.status}%0A`;
+                window.open(`https://wa.me/963${cleanPhone}?text=${msg}`, '_blank');
+            }
+        }
+        
+        function refreshOrders() {
+            loadOrders();
+        }
+        
+        function clearOrders() {
+            if (confirm('هل أنت متأكد من مسح جميع الطلبات؟')) {
+                localStorage.setItem('yellowDayOrders', '[]');
+                loadOrders();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadOrders);
+    </script>
+</body>
+</html>

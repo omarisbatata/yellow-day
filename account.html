@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حسابي - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/supabase.js"></script>
+    <style>
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .status-new { background: #E3F2FD; color: #1565C0; border: 2px solid #1565C0; }
+        .status-preparing { background: #FFF8E1; color: #F57F17; border: 2px solid #F57F17; }
+        .status-completed { background: #E8F5E9; color: #2E7D32; border: 2px solid #2E7D32; }
+        .status-cancelled { background: #FFEBEE; color: #C62828; border: 2px solid #C62828; text-decoration: line-through; }
+        
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-right: 5px solid #FFB800;
+            transition: all 0.3s;
+        }
+        .order-card:hover { box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .order-card.completed-order { border-right-color: #4CAF50; }
+        .order-card.cancelled-order { border-right-color: #F44336; opacity: 0.7; }
+        .order-card.preparing-order { border-right-color: #FF9800; }
+        .order-card.new-order { border-right-color: #2196F3; }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .order-date { color: #888; font-size: 13px; }
+        .order-total { font-size: 20px; font-weight: 800; color: #1A1A2E; }
+        .order-items { color: #555; font-size: 14px; line-height: 1.8; }
+        .order-status-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        
+        .no-orders { text-align: center; padding: 50px; color: #888; }
+        .no-orders .icon { font-size: 60px; }
+        
+        .whatsapp-contact {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text"><h1>Yellow Day</h1></div>
+            </div>
+            <div class="user-menu">
+                <a href="index.html">الرئيسية</a>
+                <a href="cart.html">🛒 <span id="cartCount">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container" style="max-width: 800px;">
+        <div id="loggedOut" style="text-align: center; padding: 40px;">
+            <p style="font-size: 18px; margin-bottom: 20px;">👤 يرجى تسجيل الدخول لعرض حسابك</p>
+            <a href="login.html" class="btn" style="display: inline-block; width: auto; margin: 5px;">تسجيل الدخول</a>
+            <a href="signup.html" class="btn btn-outline" style="display: inline-block; width: auto; margin: 5px;">إنشاء حساب</a>
+        </div>
+        
+        <div id="loggedIn" style="display: none;">
+            <h2>👤 حسابي</h2>
+            
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 12px; margin: 20px 0;" id="userInfo"></div>
+            
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">📋 طلباتي</h3>
+            <div id="userOrders">
+                <p style="color:#888;text-align:center;">⏳ جاري تحميل طلباتك...</p>
+            </div>
+            
+            <button class="btn" style="margin-top: 30px; background: #F44336; color: white;" onclick="logout()">🚪 تسجيل الخروج</button>
+        </div>
+    </div>
+
+    <script>
+        function logout() {
+            localStorage.removeItem('yellowDayUser');
+            window.location.href = 'index.html';
+        }
+        
+        function getStatusBadge(status) {
+            const badges = { 'جديد': 'status-new', 'قيد التجهيز': 'status-preparing', 'تم التوصيل': 'status-completed', 'ملغي': 'status-cancelled' };
+            const icons = { 'جديد': '🆕', 'قيد التجهيز': '⏳', 'تم التوصيل': '✅', 'ملغي': '❌' };
+            return `<span class="status-badge ${badges[status]||'status-new'}">${icons[status]||''} ${status}</span>`;
+        }
+        
+        function getOrderBorderClass(status) {
+            const map = { 'جديد': 'new-order', 'قيد التجهيز': 'preparing-order', 'تم التوصيل': 'completed-order', 'ملغي': 'cancelled-order' };
+            return map[status] || 'new-order';
+        }
+        
+        function getStatusMessage(status) {
+            const messages = {
+                'جديد': 'تم استلام طلبك وسيتم التواصل معك قريباً',
+                'قيد التجهيز': 'طلبك قيد التجهيز وسيتم توصيله قريباً',
+                'تم التوصيل': 'تم توصيل طلبك بنجاح - شكراً لثقتك',
+                'ملغي': 'تم إلغاء هذا الطلب'
+            };
+            return messages[status] || '';
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            const user = JSON.parse(localStorage.getItem('yellowDayUser'));
+            
+            // Update cart count
+            const cart = JSON.parse(localStorage.getItem('yellowDayCart') || '[]');
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            const cartCountEl = document.getElementById('cartCount');
+            if (cartCountEl) {
+                cartCountEl.textContent = count;
+                cartCountEl.style.display = count > 0 ? 'flex' : 'none';
+            }
+            
+            if (!user) {
+                document.getElementById('loggedOut').style.display = 'block';
+                document.getElementById('loggedIn').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('loggedOut').style.display = 'none';
+            document.getElementById('loggedIn').style.display = 'block';
+            
+            // Display user info
+            document.getElementById('userInfo').innerHTML = `
+                <p><strong>👤 الاسم:</strong> ${user.name}</p>
+                <p><strong>📞 الهاتف:</strong> ${user.phone}</p>
+                <p><strong>📍 المحافظة:</strong> ${user.governorate || 'غير محدد'}</p>
+                <p><strong>🏠 العنوان:</strong> ${user.address || 'غير محدد'}</p>
+            `;
+            
+            // Fetch orders from Supabase
+            const ordersDiv = document.getElementById('userOrders');
+            
+            try {
+                const allOrders = await supabase.getOrders();
+                const userOrders = allOrders.filter(o => o.customer.phone === user.phone);
+                
+                if (userOrders.length === 0) {
+                    ordersDiv.innerHTML = `
+                        <div class="no-orders">
+                            <div class="icon">📭</div>
+                            <p style="font-size:16px;margin-top:15px;">لا توجد طلبات حتى الآن</p>
+                            <a href="index.html" class="btn" style="display:inline-block;width:auto;margin-top:15px;">تصفح المنتجات</a>
+                        </div>`;
+                    return;
+                }
+                
+                ordersDiv.innerHTML = userOrders.map(order => {
+                    const itemsHtml = order.items.map(item => {
+                        const name = `منتج #${item.productId}`;
+                        return `<span>• ${name} × ${item.quantity}</span>`;
+                    }).join('<br>');
+                    
+                    return `
+                        <div class="order-card ${getOrderBorderClass(order.status)}">
+                            <div class="order-header">
+                                <div>
+                                    <strong>📦 طلب #${order.id}</strong>
+                                    <span class="order-date">| ${order.date}</span>
+                                </div>
+                                <span class="order-total">${order.total} دولار</span>
+                            </div>
+                            <div class="order-items">${itemsHtml}</div>
+                            <div class="order-status-row">
+                                ${getStatusBadge(order.status)}
+                                <span style="font-size:13px;color:#666;">${getStatusMessage(order.status)}</span>
+                            </div>
+                            ${order.status !== 'ملغي' && order.status !== 'تم التوصيل' ? `
+                                <a href="https://wa.me/963981779965" target="_blank" class="whatsapp-contact">💬 تواصل واتساب</a>
+                            ` : ''}
+                        </div>`;
+                }).join('');
+                
+            } catch (error) {
+                ordersDiv.innerHTML = '<p style="text-align:center;color:#888;">❌ حدث خطأ في تحميل الطلبات. حاول مرة أخرى.</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام الطلب - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/supabase.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text"><h1>Yellow Day</h1></div>
+            </div>
+            <div class="user-menu">
+                <a href="index.html">الرئيسية</a>
+                <a href="cart.html">🛒 <span id="cartCount">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <div class="page-container" style="max-width: 700px;">
+        <h2>إتمام الطلب</h2>
+        
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 12px; margin-bottom: 25px;" id="orderSummary">
+            <!-- Filled by JS -->
+        </div>
+        
+        <form id="checkoutForm">
+            <div class="form-group">
+                <label>الاسم الكامل</label>
+                <input type="text" id="checkoutName" required>
+            </div>
+            
+            <div class="form-group">
+                <label>رقم الهاتف للتواصل</label>
+                <input type="tel" id="checkoutPhone" placeholder="09XXXXXXXX" required>
+                <small style="color: #888;">سيتم التواصل معك عبر الواتساب لتأكيد الطلب والدفع</small>
+            </div>
+            
+            <div class="form-group">
+                <label>المحافظة</label>
+                <select id="checkoutGovernorate" required>
+                    <option value="">اختر المحافظة</option>
+                    <option>دمشق</option><option>ريف دمشق</option><option>حلب</option>
+                    <option>حمص</option><option>حماة</option><option>اللاذقية</option>
+                    <option>طرطوس</option><option>دير الزور</option><option>الرقة</option>
+                    <option>الحسكة</option><option>إدلب</option><option>درعا</option>
+                    <option>السويداء</option><option>القنيطرة</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>العنوان التفصيلي للتوصيل</label>
+                <textarea id="checkoutAddress" rows="3" placeholder="الشارع - الحي - رقم البناء - أقرب معلم" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>ملاحظات إضافية (اختياري)</label>
+                <textarea id="checkoutNotes" rows="2" placeholder="أي ملاحظات تريد إضافتها..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn">إرسال الطلب عبر واتساب</button>
+        </form>
+    </div>
+
+    <script>
+        let checkoutProducts = [];
+        
+        async function loadCheckoutProducts() {
+            checkoutProducts = await supabase.getProducts();
+        }
+        
+        function getProductById(id) {
+            return checkoutProducts.find(p => p.id === id);
+        }
+        
+        function getCart() {
+            return JSON.parse(localStorage.getItem('yellowDayCart') || '[]');
+        }
+        
+        function updateCartCountGlobal() {
+            const cart = getCart();
+            const count = cart.reduce((total, item) => total + item.quantity, 0);
+            document.querySelectorAll('#cartCount').forEach(el => {
+                el.textContent = count;
+                el.style.display = count > 0 ? 'flex' : 'none';
+            });
+        }
+        
+        function renderOrderSummary() {
+            const cart = getCart();
+            const summary = document.getElementById('orderSummary');
+            let total = 0;
+            
+            if (cart.length === 0) {
+                summary.innerHTML = '<p style="text-align:center;color:#888;">السلة فارغة</p>';
+                return;
+            }
+            
+            let html = '<h4 style="margin-bottom: 15px;">📦 ملخص الطلب:</h4>';
+            
+            cart.forEach(item => {
+                const product = getProductById(item.productId);
+                if (product) {
+                    const subtotal = product.price * item.quantity;
+                    total += subtotal;
+                    html += `
+                        <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #ddd;">
+                            <span>${product.nameAr} × ${item.quantity}</span>
+                            <span>${subtotal} دولار</span>
+                        </div>
+                    `;
+                }
+            });
+            
+            html += `
+                <div style="display: flex; justify-content: space-between; padding-top: 15px; font-weight: 800; font-size: 18px; border-top: 2px solid #333;">
+                    <span>💰 المجموع:</span>
+                    <span>${total} دولار</span>
+                </div>
+            `;
+            
+            summary.innerHTML = html;
+        }
+        
+        function fillUserData() {
+            const user = JSON.parse(localStorage.getItem('yellowDayUser'));
+            if (user) {
+                document.getElementById('checkoutName').value = user.name || '';
+                document.getElementById('checkoutPhone').value = user.phone || '';
+                document.getElementById('checkoutGovernorate').value = user.governorate || '';
+                document.getElementById('checkoutAddress').value = user.address || '';
+            }
+        }
+        
+        document.getElementById('checkoutForm')?.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const cart = getCart();
+            if (cart.length === 0) {
+                alert('السلة فارغة!');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const name = document.getElementById('checkoutName').value.trim();
+            const phone = document.getElementById('checkoutPhone').value.trim();
+            const governorate = document.getElementById('checkoutGovernorate').value;
+            const address = document.getElementById('checkoutAddress').value.trim();
+            const notes = document.getElementById('checkoutNotes').value.trim();
+            
+            let total = 0;
+            let message = `🛒 *طلب جديد من Yellow Day*%0A%0A`;
+            message += `👤 *الاسم:* ${name}%0A`;
+            message += `📞 *الهاتف:* ${phone}%0A`;
+            message += `📍 *المحافظة:* ${governorate}%0A`;
+            message += `🏠 *العنوان:* ${address}%0A`;
+            if (notes) message += `📝 *ملاحظات:* ${notes}%0A`;
+            message += `%0A--- 📋 الطلب ---%0A`;
+            
+            cart.forEach(item => {
+                const product = getProductById(item.productId);
+                if (product) {
+                    const subtotal = product.price * item.quantity;
+                    total += subtotal;
+                    message += `• ${product.nameAr} (${product.name}) × ${item.quantity} = ${subtotal} دولار%0A`;
+                }
+            });
+            
+            message += `%0A💰 *المجموع الكلي:* ${total} دولار`;
+            
+            // Save order to Supabase
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleString('ar-SY'),
+                customer: { name, phone, governorate, address },
+                items: cart,
+                total: total,
+                notes: notes,
+                status: 'جديد'
+            };
+            
+            await supabase.addOrder(order);
+            
+            // DECREASE STOCK for each product ordered
+            for (const item of cart) {
+                const product = getProductById(item.productId);
+                if (product && product.inStock) {
+                    const newQuantity = Math.max(0, product.stockQuantity - item.quantity);
+                    const newInStock = newQuantity > 0;
+                    await supabase.updateProduct(product.id, {
+                        name: product.name,
+                        nameAr: product.nameAr,
+                        price: product.price,
+                        category: product.category,
+                        desc: product.desc,
+                        fullDesc: product.fullDesc || '',
+                        imageColor: product.imageColor,
+                        inStock: newInStock,
+                        stockQuantity: newQuantity
+                    });
+                }
+            }
+            
+            // Clear cart
+            localStorage.setItem('yellowDayCart', '[]');
+            
+            // Open WhatsApp
+            const whatsappNumber = '963944793354'; // Replace with your WhatsApp number
+            const whatsappURL = `https://wa.me/${whatsappNumber}?text=${message}`;
+            window.open(whatsappURL, '_blank');
+            
+            alert('✅ تم إرسال طلبك! سيتم التواصل معك قريباً عبر الواتساب.');
+            window.location.href = 'index.html';
+        });
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadCheckoutProducts();
+            renderOrderSummary();
+            fillUserData();
+            updateCartCountGlobal();
+        });
+    </script>
+</body>
+</html>

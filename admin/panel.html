@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - Yellow Day Admin</title>
+    <link rel="icon" type="image/jpeg" href="../img/logo.jpeg">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/supabase.js"></script>
+    <style>
+        .admin-body {
+            background: #F5F5F5;
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            background: #1A1A2E;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .admin-header .logo-img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 50%;
+            border: 2px solid #FFB800;
+            animation: logoBreathe 3.5s ease-in-out infinite;
+        }
+
+        @keyframes logoBreathe {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.08) rotate(3deg); }
+        }
+
+        .admin-header .logo-area h2 {
+            color: #FFB800;
+            font-size: 22px;
+        }
+        
+        .admin-header .logo-area span {
+            background: #FFB800;
+            color: #1A1A2E;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #F44336;
+            border-color: #F44336;
+        }
+        
+        .admin-tabs {
+            display: flex;
+            gap: 5px;
+            padding: 0 30px;
+            background: white;
+            border-bottom: 2px solid #E0E0E0;
+        }
+        
+        .tab-btn {
+            padding: 15px 25px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #888;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        
+        .tab-btn.active {
+            color: #1A1A2E;
+            border-bottom-color: #FFB800;
+        }
+        
+        .tab-btn:hover { color: #1A1A2E; }
+        
+        .tab-content {
+            display: none;
+            padding: 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            max-width: 700px;
+        }
+        
+        .form-card h3 {
+            margin-bottom: 25px;
+            color: #1A1A2E;
+            font-size: 20px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #FFB800;
+            box-shadow: 0 0 0 3px rgba(255,184,0,0.1);
+        }
+        
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            border: 2px solid #E0E0E0;
+            margin-top: 8px;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            padding: 12px 30px;
+            background: #FFB800;
+            color: #1A1A2E;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover { background: #E5A600; }
+        
+        .btn-danger {
+            padding: 12px 30px;
+            background: #F44336;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        
+        .btn-outline {
+            padding: 12px 30px;
+            background: white;
+            color: #333;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        
+        .products-table th {
+            background: #1A1A2E;
+            color: white;
+            padding: 14px;
+            font-size: 13px;
+            text-align: right;
+        }
+        
+        .products-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 14px;
+        }
+        
+        .products-table tr:hover { background: #FFFDF5; }
+        
+        .color-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        
+        .action-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+        
+        .icon-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn { background: #E3F2FD; color: #1565C0; }
+        .edit-btn:hover { background: #1565C0; color: white; }
+        
+        .delete-btn { background: #FFEBEE; color: #C62828; }
+        .delete-btn:hover { background: #C62828; color: white; }
+        
+        .stock-toggle-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+        
+        .stock-toggle-instock {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        .stock-toggle-outstock {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+            text-align: center;
+            min-width: 90px;
+        }
+        
+        .status-new { background: #E3F2FD; color: #1565C0; border: 2px solid #1565C0; }
+        .status-preparing { background: #FFF8E1; color: #F57F17; border: 2px solid #F57F17; }
+        .status-completed { background: #E8F5E9; color: #2E7D32; border: 2px solid #2E7D32; }
+        .status-cancelled { background: #FFEBEE; color: #C62828; border: 2px solid #C62828; text-decoration: line-through; }
+        
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .filter-btn:hover { border-color: #FFB800; color: #1A1A2E; }
+        
+        .filter-btn.active-filter {
+            background: #1A1A2E;
+            color: white;
+            border-color: #1A1A2E;
+        }
+        
+        .filter-btn .count {
+            background: rgba(0,0,0,0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-right: 5px;
+            font-size: 11px;
+        }
+        
+        .filter-btn.active-filter .count {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .success-msg {
+            background: #E8F5E9;
+            color: #2E7D32;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+        
+        .success-msg.show { display: block; }
+        
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1A1A2E;
+        }
+        
+        .loading-overlay.show { display: flex; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+        
+        .stat-card .stat-number { font-size: 36px; font-weight: 800; }
+        .stat-card .stat-label { font-size: 13px; margin-top: 5px; color: #888; }
+        
+        .stat-card:nth-child(1) { border-top: 4px solid #FFB800; }
+        .stat-card:nth-child(1) .stat-number { color: #FFB800; }
+        .stat-card:nth-child(2) { border-top: 4px solid #1565C0; }
+        .stat-card:nth-child(2) .stat-number { color: #1565C0; }
+        .stat-card:nth-child(3) { border-top: 4px solid #F57F17; }
+        .stat-card:nth-child(3) .stat-number { color: #F57F17; }
+        .stat-card:nth-child(4) { border-top: 4px solid #2E7D32; }
+        .stat-card:nth-child(4) .stat-number { color: #2E7D32; }
+        .stat-card:nth-child(5) { border-top: 4px solid #F44336; }
+        .stat-card:nth-child(5) .stat-number { color: #F44336; }
+        
+        .whatsapp-link {
+            background: #25D366;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            transition: all 0.2s;
+        }
+        
+        .whatsapp-link:hover { background: #1DA851; transform: scale(1.05); }
+        
+        .stock-badge-mini {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .stock-badge-instock { background: #E8F5E9; color: #2E7D32; }
+        .stock-badge-lowstock { background: #FFF3E0; color: #E65100; }
+        .stock-badge-outstock { background: #FFEBEE; color: #C62828; }
+        
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .admin-tabs { padding: 0 15px; overflow-x: auto; }
+            .tab-content { padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body class="admin-body">
+
+    <script>
+        if (!sessionStorage.getItem('adminSession')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        ⏳ جاري التحميل...
+    </div>
+
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="logo-area">
+            <img src="../img/logo.jpeg" alt="Yellow Day" class="logo-img">
+            <h2>Yellow Day</h2>
+            <span>ADMIN</span>
+        </div>
+        <button class="logout-btn" onclick="adminLogout()">🚪 تسجيل الخروج</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('dashboard')">📊 لوحة المعلومات</button>
+        <button class="tab-btn" onclick="switchTab('addProduct')">➕ إضافة منتج</button>
+        <button class="tab-btn" onclick="switchTab('productsList')">📦 قائمة المنتجات</button>
+        <button class="tab-btn" onclick="switchTab('brands')">🏷️ الماركات</button>
+        <button class="tab-btn" onclick="switchTab('orders')">📋 الطلبات</button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div class="tab-content active" id="dashboard">
+        <div class="stats-grid">
+            <div class="stat-card" onclick="switchTab('productsList')">
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">📦 جميع المنتجات</div>
+            </div>
+            <div class="stat-card" onclick="switchTab('orders');filterOrders('جديد');">
+                <div class="stat-number" id="newOrders">0</div>
+                <div class="stat-label">🆕 طلب جديد</div>
+            </div>
+            <div class="stat-card" onclick="switchTab('orders');filterOrders('قيد التجهيز');">
+                <div class="stat-number" id="preparingOrders">0</div>
+                <div class="stat-label">⏳ قيد التجهيز</div>
+            </div>
+            <div class="stat-card" onclick="switchTab('orders');filterOrders('تم التوصيل');">
+                <div class="stat-number" id="completedOrders">0</div>
+                <div class="stat-label">✅ مكتمل</div>
+            </div>
+            <div class="stat-card" onclick="switchTab('productsList')">
+                <div class="stat-number" id="outOfStock">0</div>
+                <div class="stat-label">❌ غير متوفر</div>
+            </div>
+            <div class="stat-card" style="border-top: 4px solid #1565C0;">
+                <div class="stat-number" id="visitsToday" style="color:#1565C0;">0</div>
+                <div class="stat-label">👁️ زيارات اليوم</div>
+            </div>
+            <div class="stat-card" style="border-top: 4px solid #6A1B9A;">
+                <div class="stat-number" id="visitsTotal" style="color:#6A1B9A;">0</div>
+                <div class="stat-label">📈 إجمالي الزيارات</div>
+            </div>
+        </div>
+
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
+            <h3 style="margin-bottom: 15px;">📋 آخر الطلبات</h3>
+            <div id="recentOrders" style="overflow-x: auto;">
+                <p style="color: #888;">⏳ جاري التحميل...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Tab -->
+    <div class="tab-content" id="addProduct">
+        <div class="success-msg" id="successMsg">✅ تم حفظ المنتج بنجاح!</div>
+        
+        <div class="form-card">
+            <h3 id="formTitle">➕ إضافة منتج جديد</h3>
+            
+            <form id="productForm">
+                <input type="hidden" id="editProductId" value="">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم المنتج (English) *</label>
+                        <input type="text" id="productName" placeholder="مثال: Panadol" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم المنتج (العربية) *</label>
+                        <input type="text" id="productNameAr" placeholder="مثال: بانادول" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>السعر (دولار) *</label>
+                        <input type="number" id="productPrice" placeholder="مثال: 50" required min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>التصنيف</label>
+                        <select id="productCategory">
+                            <option value="فيتامينات">فيتامينات</option>
+                            <option value="عناية بالبشرة">عناية بالبشرة</option>
+                            <option value="مكملات غذائية">مكملات غذائية</option>
+                            <option value="أخرى">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الماركة</label>
+                        <select id="productBrand">
+                            <option value="">بدون ماركة</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة المنتج (اختياري - إن لم تُرفع تُستخدم الخلفية الملونة)</label>
+                    <input type="file" id="productImageFile" accept="image/*" onchange="handleProductImageUpload(event)">
+                    <div style="margin-top:10px;display:flex;align-items:center;gap:12px;">
+                        <img id="productImagePreview" style="display:none;max-width:120px;max-height:120px;border-radius:8px;border:2px solid #E0E0E0;object-fit:contain;">
+                        <button type="button" class="btn-outline" id="removeProductImageBtn" style="display:none;padding:8px 16px;font-size:13px;" onclick="removeProductImage()">🗑️ إزالة الصورة</button>
+                    </div>
+                </div>
+
+                <!-- STOCK MANAGEMENT -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>حالة المخزون</label>
+                        <select id="productInStock" onchange="toggleStockQuantity()">
+                            <option value="true">✅ متوفر</option>
+                            <option value="false">❌ غير متوفر</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="stockQuantityGroup">
+                        <label>الكمية المتوفرة</label>
+                        <input type="number" id="productStockQuantity" value="10" min="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>وصف مختصر *</label>
+                    <input type="text" id="productDesc" placeholder="وصف قصير يظهر في بطاقة المنتج" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>وصف تفصيلي</label>
+                    <textarea id="productFullDesc" rows="3" placeholder="وصف كامل يظهر في صفحة المنتج..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>لون الخلفية</label>
+                        <select id="productColor" onchange="updateColorPreview()">
+                            <option value="linear-gradient(135deg, #FF6B6B, #FF8E8E)">❤️ أحمر</option>
+                            <option value="linear-gradient(135deg, #667EEA, #764BA2)">💙 بنفسجي-أزرق</option>
+                            <option value="linear-gradient(135deg, #4CAF50, #81C784)">💚 أخضر</option>
+                            <option value="linear-gradient(135deg, #4ECDC4, #7EDDD6)">🩵 فيروزي</option>
+                            <option value="linear-gradient(135deg, #FF9A56, #FFB347)">🧡 برتقالي</option>
+                            <option value="linear-gradient(135deg, #A855F7, #C084FC)">💜 بنفسجي</option>
+                            <option value="linear-gradient(135deg, #EC4899, #F472B6)">💗 وردي</option>
+                            <option value="linear-gradient(135deg, #1E3A5F, #3B5998)">💙 كحلي</option>
+                        </select>
+                        <div class="color-preview" id="colorPreview" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E);"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>أو ألوان مخصصة</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="color" id="customColor1" value="#FF6B6B" onchange="applyCustomColor()" style="width: 50px; height: 40px; cursor: pointer;">
+                            <input type="color" id="customColor2" value="#FF8E8E" onchange="applyCustomColor()" style="width: 50px; height: 40px; cursor: pointer;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="btn-row">
+                    <button type="submit" class="btn-primary" id="saveBtn">💾 حفظ المنتج</button>
+                    <button type="button" class="btn-outline" onclick="resetForm()">🔄 مسح النموذج</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Products List Tab -->
+    <div class="tab-content" id="productsList">
+        <div style="overflow-x: auto;">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>اللون</th>
+                        <th>الاسم</th>
+                        <th>الاسم العربي</th>
+                        <th>السعر</th>
+                        <th>التصنيف</th>
+                        <th>الماركة</th>
+                        <th>المخزون</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <tr><td colspan="10" style="text-align:center;color:#888;padding:30px;">⏳ جاري التحميل...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Brands Tab -->
+    <div class="tab-content" id="brands">
+        <div class="form-card" style="margin-bottom: 30px;">
+            <h3 id="brandFormTitle">➕ إضافة ماركة جديدة</h3>
+            <form id="brandForm">
+                <input type="hidden" id="editBrandId" value="">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>اسم الماركة (English) *</label>
+                        <input type="text" id="brandName" placeholder="مثال: Nivea" required>
+                    </div>
+                    <div class="form-group">
+                        <label>اسم الماركة (العربية) *</label>
+                        <input type="text" id="brandNameAr" placeholder="مثال: نيفيا" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>لون الشعار (يُستخدم كخلفية إن لم تُرفع صورة)</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="color" id="brandColor1" value="#FFB800" onchange="updateBrandColorPreview()" style="width: 50px; height: 40px; cursor: pointer;">
+                        <input type="color" id="brandColor2" value="#FFD166" onchange="updateBrandColorPreview()" style="width: 50px; height: 40px; cursor: pointer;">
+                        <div class="color-preview" id="brandColorPreview" style="background: linear-gradient(135deg, #FFB800, #FFD166);"></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>صورة شعار الماركة (اختياري)</label>
+                    <input type="file" id="brandImageFile" accept="image/*" onchange="handleBrandImageUpload(event)">
+                    <div style="margin-top:10px;display:flex;align-items:center;gap:12px;">
+                        <img id="brandImagePreview" style="display:none;max-width:100px;max-height:100px;border-radius:8px;border:2px solid #E0E0E0;object-fit:contain;">
+                        <button type="button" class="btn-outline" id="removeBrandImageBtn" style="display:none;padding:8px 16px;font-size:13px;" onclick="removeBrandImage()">🗑️ إزالة الصورة</button>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button type="submit" class="btn-primary" id="saveBrandBtn">💾 حفظ الماركة</button>
+                    <button type="button" class="btn-outline" onclick="resetBrandForm()">🔄 مسح النموذج</button>
+                </div>
+            </form>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th style="width:50px;">#</th>
+                        <th>الشعار</th>
+                        <th>الاسم</th>
+                        <th>الاسم العربي</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="brandsTableBody">
+                    <tr><td colspan="5" style="text-align:center;color:#888;padding:30px;">⏳ جاري التحميل...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Orders Tab -->
+    <div class="tab-content" id="orders">
+        <h3 style="margin-bottom:15px;">📋 فلترة الطلبات</h3>
+        
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-btn active-filter" onclick="filterOrders('all')">📋 الكل <span class="count" id="countAll">0</span></button>
+            <button class="filter-btn" onclick="filterOrders('جديد')">🆕 جديد <span class="count" id="countNew">0</span></button>
+            <button class="filter-btn" onclick="filterOrders('قيد التجهيز')">⏳ قيد التجهيز <span class="count" id="countPreparing">0</span></button>
+            <button class="filter-btn" onclick="filterOrders('تم التوصيل')">✅ مكتمل <span class="count" id="countCompleted">0</span></button>
+            <button class="filter-btn" onclick="filterOrders('ملغي')">❌ ملغي <span class="count" id="countCancelled">0</span></button>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="products-table">
+                <thead>
+                    <tr>
+                        <th>رقم الطلب</th>
+                        <th>التاريخ</th>
+                        <th>العميل</th>
+                        <th>الهاتف</th>
+                        <th>العنوان</th>
+                        <th>المنتجات</th>
+                        <th>المجموع</th>
+                        <th>الحالة</th>
+                        <th>واتساب</th>
+                    </tr>
+                </thead>
+                <tbody id="adminOrdersBody">
+                    <tr><td colspan="9" style="text-align:center;color:#888;padding:30px;">⏳ جاري التحميل...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="btn-row" style="margin-top:20px;">
+            <button class="btn-danger" onclick="clearAllOrders()">🗑️ مسح جميع الطلبات</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== SESSION =====
+        function adminLogout() {
+            sessionStorage.removeItem('adminSession');
+            sessionStorage.removeItem('adminLoginTime');
+            window.location.href = 'login.html';
+        }
+
+        const loginTime = parseInt(sessionStorage.getItem('adminLoginTime') || '0');
+        if (loginTime && (Date.now() - loginTime > 7200000)) {
+            adminLogout();
+        }
+
+        // ===== GLOBAL STATE =====
+        let allProducts = [];
+        let allOrders = [];
+        let allBrands = [];
+        let currentFilter = 'all';
+        let currentProductImageData = null;
+        let currentBrandImageData = null;
+
+        // ===== IMAGE UPLOAD HELPERS =====
+        function resizeImageFile(file, maxDim, callback) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let { width, height } = img;
+                    if (width > height && width > maxDim) {
+                        height = Math.round(height * (maxDim / width));
+                        width = maxDim;
+                    } else if (height > maxDim) {
+                        width = Math.round(width * (maxDim / height));
+                        height = maxDim;
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = width;
+                    canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    callback(canvas.toDataURL('image/jpeg', 0.82));
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleProductImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            resizeImageFile(file, 600, function(dataUrl) {
+                currentProductImageData = dataUrl;
+                const preview = document.getElementById('productImagePreview');
+                preview.src = dataUrl;
+                preview.style.display = 'inline-block';
+                document.getElementById('removeProductImageBtn').style.display = 'inline-block';
+            });
+        }
+
+        function removeProductImage() {
+            currentProductImageData = null;
+            document.getElementById('productImageFile').value = '';
+            document.getElementById('productImagePreview').style.display = 'none';
+            document.getElementById('removeProductImageBtn').style.display = 'none';
+        }
+
+        function handleBrandImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            resizeImageFile(file, 300, function(dataUrl) {
+                currentBrandImageData = dataUrl;
+                const preview = document.getElementById('brandImagePreview');
+                preview.src = dataUrl;
+                preview.style.display = 'inline-block';
+                document.getElementById('removeBrandImageBtn').style.display = 'inline-block';
+            });
+        }
+
+        function removeBrandImage() {
+            currentBrandImageData = null;
+            document.getElementById('brandImageFile').value = '';
+            document.getElementById('brandImagePreview').style.display = 'none';
+            document.getElementById('removeBrandImageBtn').style.display = 'none';
+        }
+
+        function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            const tabMap = { dashboard: 0, addProduct: 1, productsList: 2, brands: 3, orders: 4 };
+            const buttons = document.querySelectorAll('.tab-btn');
+            if (tabMap[tabName] !== undefined && buttons[tabMap[tabName]]) {
+                buttons[tabMap[tabName]].classList.add('active');
+            }
+
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'productsList') loadProductsTable();
+            if (tabName === 'brands') loadBrandsTable();
+            if (tabName === 'orders') { loadAdminOrders(); updateFilterCounts(); }
+        }
+
+        // ===== FETCH DATA =====
+        async function fetchProducts() {
+            showLoading();
+            allProducts = await supabase.getProducts();
+            hideLoading();
+            return allProducts;
+        }
+
+        async function fetchOrders() {
+            showLoading();
+            allOrders = await supabase.getOrders();
+            hideLoading();
+            return allOrders;
+        }
+
+        async function fetchBrands() {
+            allBrands = await supabase.getBrands();
+            populateBrandSelect();
+            return allBrands;
+        }
+
+        function populateBrandSelect() {
+            const select = document.getElementById('productBrand');
+            const current = select.value;
+            select.innerHTML = '<option value="">بدون ماركة</option>' +
+                allBrands.map(b => `<option value="${b.id}">${b.nameAr}</option>`).join('');
+            select.value = current;
+        }
+
+        // ===== STOCK TOGGLE =====
+        function toggleStockQuantity() {
+            const inStock = document.getElementById('productInStock').value === 'true';
+            document.getElementById('stockQuantityGroup').style.display = inStock ? 'block' : 'none';
+        }
+
+        // ===== PRODUCT FORM =====
+        document.getElementById('productForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const editId = document.getElementById('editProductId').value;
+            const inStock = document.getElementById('productInStock').value === 'true';
+            
+            let product = {
+                name: document.getElementById('productName').value.trim(),
+                nameAr: document.getElementById('productNameAr').value.trim(),
+                price: parseInt(document.getElementById('productPrice').value),
+                category: document.getElementById('productCategory').value,
+                desc: document.getElementById('productDesc').value.trim(),
+                fullDesc: document.getElementById('productFullDesc').value.trim(),
+                imageColor: getCurrentColor(),
+                inStock: inStock,
+                stockQuantity: inStock ? parseInt(document.getElementById('productStockQuantity').value) || 0 : 0,
+                brandId: document.getElementById('productBrand').value ? parseInt(document.getElementById('productBrand').value) : null,
+                imageUrl: currentProductImageData
+            };
+            
+            showLoading();
+            if (editId) {
+                await supabase.updateProduct(parseInt(editId), product);
+            } else {
+                await supabase.addProduct(product);
+            }
+            await fetchProducts();
+            hideLoading();
+            
+            const msg = document.getElementById('successMsg');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 3000);
+            
+            resetForm();
+            loadProductsTable();
+            loadDashboard();
+        });
+
+        function getCurrentColor() {
+            const select = document.getElementById('productColor');
+            if (select.value) return select.value;
+            return `linear-gradient(135deg, ${document.getElementById('customColor1').value}, ${document.getElementById('customColor2').value})`;
+        }
+
+        function updateColorPreview() {
+            document.getElementById('colorPreview').style.background = document.getElementById('productColor').value;
+        }
+
+        function applyCustomColor() {
+            document.getElementById('productColor').value = '';
+            document.getElementById('colorPreview').style.background = `linear-gradient(135deg, ${document.getElementById('customColor1').value}, ${document.getElementById('customColor2').value})`;
+        }
+
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('editProductId').value = '';
+            document.getElementById('formTitle').textContent = '➕ إضافة منتج جديد';
+            document.getElementById('saveBtn').textContent = '💾 حفظ المنتج';
+            document.getElementById('colorPreview').style.background = 'linear-gradient(135deg, #FF6B6B, #FF8E8E)';
+            document.getElementById('productInStock').value = 'true';
+            document.getElementById('stockQuantityGroup').style.display = 'block';
+            document.getElementById('productStockQuantity').value = '10';
+            document.getElementById('productBrand').value = '';
+            removeProductImage();
+        }
+
+        function editProduct(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productNameAr').value = product.nameAr;
+            document.getElementById('productPrice').value = product.price;
+            document.getElementById('productCategory').value = product.category;
+            document.getElementById('productDesc').value = product.desc;
+            document.getElementById('productFullDesc').value = product.fullDesc || '';
+            document.getElementById('productInStock').value = product.inStock ? 'true' : 'false';
+            document.getElementById('productStockQuantity').value = product.stockQuantity || 0;
+            document.getElementById('productBrand').value = product.brandId || '';
+            toggleStockQuantity();
+
+            if (product.imageUrl) {
+                currentProductImageData = product.imageUrl;
+                const preview = document.getElementById('productImagePreview');
+                preview.src = product.imageUrl;
+                preview.style.display = 'inline-block';
+                document.getElementById('removeProductImageBtn').style.display = 'inline-block';
+            } else {
+                removeProductImage();
+            }
+
+            document.getElementById('formTitle').textContent = '✏️ تعديل منتج';
+            document.getElementById('saveBtn').textContent = '💾 تحديث المنتج';
+            
+            switchTab('addProduct');
+            document.getElementById('productForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function deleteProduct(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+            showLoading();
+            await supabase.deleteProduct(id);
+            await fetchProducts();
+            hideLoading();
+            loadProductsTable();
+            loadDashboard();
+        }
+
+        async function toggleProductStock(id) {
+            const product = allProducts.find(p => p.id === id);
+            if (!product) return;
+            
+            showLoading();
+            product.inStock = !product.inStock;
+            if (product.inStock && product.stockQuantity === 0) {
+                product.stockQuantity = 1;
+            }
+            await supabase.updateProduct(id, product);
+            await fetchProducts();
+            hideLoading();
+            loadProductsTable();
+            loadDashboard();
+        }
+
+        function getStockBadgeHTML(product) {
+            if (!product.inStock) {
+                return '<span class="stock-badge-mini stock-badge-outstock">❌ غير متوفر</span>';
+            }
+            if (product.stockQuantity <= 3) {
+                return `<span class="stock-badge-mini stock-badge-lowstock">⚠️ ${product.stockQuantity}</span>`;
+            }
+            return `<span class="stock-badge-mini stock-badge-instock">✅ ${product.stockQuantity}</span>`;
+        }
+
+        function loadProductsTable() {
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (allProducts.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#888;padding:30px;">لا توجد منتجات</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allProducts.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${p.imageUrl ? `<img src="${p.imageUrl}" class="color-dot" style="object-fit:contain;background:#fafafa;">` : `<span class="color-dot" style="background:${p.imageColor};"></span>`}</td>
+                    <td>${p.name}</td>
+                    <td>${p.nameAr}</td>
+                    <td><strong>${p.price} دولار</strong></td>
+                    <td>${p.category}</td>
+                    <td>${p.brand ? p.brand.nameAr : '-'}</td>
+                    <td>${getStockBadgeHTML(p)}</td>
+                    <td>
+                        <button class="stock-toggle-btn ${p.inStock ? 'stock-toggle-instock' : 'stock-toggle-outstock'}" 
+                            onclick="toggleProductStock(${p.id})">
+                            ${p.inStock ? '✅ متوفر' : '❌ غير متوفر'}
+                        </button>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="icon-btn edit-btn" onclick="editProduct(${p.id})">✏️ تعديل</button>
+                            <button class="icon-btn delete-btn" onclick="deleteProduct(${p.id})">🗑️ حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ===== DASHBOARD =====
+        async function loadDashboard() {
+            document.getElementById('recentOrders').innerHTML = '<p style="color:#888;">⏳ جاري التحميل...</p>';
+            
+            await fetchProducts();
+            await fetchOrders();
+            const visitStats = await supabase.getVisitStats();
+
+            document.getElementById('totalProducts').textContent = allProducts.length;
+            document.getElementById('newOrders').textContent = allOrders.filter(o => o.status === 'جديد').length;
+            document.getElementById('preparingOrders').textContent = allOrders.filter(o => o.status === 'قيد التجهيز').length;
+            document.getElementById('completedOrders').textContent = allOrders.filter(o => o.status === 'تم التوصيل').length;
+            document.getElementById('outOfStock').textContent = allProducts.filter(p => !p.inStock).length;
+            document.getElementById('visitsToday').textContent = visitStats.today;
+            document.getElementById('visitsTotal').textContent = visitStats.total;
+
+            const recentDiv = document.getElementById('recentOrders');
+            const recent = allOrders.slice(-5).reverse();
+            
+            if (recent.length === 0) {
+                recentDiv.innerHTML = '<p style="color:#888;">لا توجد طلبات</p>';
+                return;
+            }
+            
+            recentDiv.innerHTML = `
+                <table class="products-table">
+                    <thead>
+                        <tr><th>العميل</th><th>الهاتف</th><th>المجموع</th><th>التاريخ</th><th>الحالة</th></tr>
+                    </thead>
+                    <tbody>
+                        ${recent.map(order => `
+                            <tr>
+                                <td>${order.customer.name}</td>
+                                <td>${order.customer.phone}</td>
+                                <td><strong>${order.total} دولار</strong></td>
+                                <td>${order.date}</td>
+                                <td>${getStatusBadge(order.status)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // ===== STATUS BADGE =====
+        function getStatusBadge(status) {
+            const badges = { 'جديد': 'status-new', 'قيد التجهيز': 'status-preparing', 'تم التوصيل': 'status-completed', 'ملغي': 'status-cancelled' };
+            const icons = { 'جديد': '🆕', 'قيد التجهيز': '⏳', 'تم التوصيل': '✅', 'ملغي': '❌' };
+            return `<span class="status-badge ${badges[status]||'status-new'}">${icons[status]||''} ${status}</span>`;
+        }
+
+        // ===== ORDERS =====
+        function filterOrders(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+            const buttons = document.querySelectorAll('.filter-btn');
+            const filterMap = { 'all': 0, 'جديد': 1, 'قيد التجهيز': 2, 'تم التوصيل': 3, 'ملغي': 4 };
+            if (filterMap[status] !== undefined && buttons[filterMap[status]]) {
+                buttons[filterMap[status]].classList.add('active-filter');
+            }
+            loadAdminOrders();
+        }
+
+        async function loadAdminOrders() {
+            document.getElementById('adminOrdersBody').innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:30px;">⏳ جاري التحميل...</td></tr>';
+            
+            await fetchOrders();
+            
+            let orders = allOrders;
+            if (currentFilter !== 'all') {
+                orders = allOrders.filter(o => o.status === currentFilter);
+            }
+            
+            const tbody = document.getElementById('adminOrdersBody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#888;padding:30px;">لا توجد طلبات في هذا التصنيف</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => {
+                const itemsList = order.items.map(item => {
+                    const product = allProducts.find(p => p.id === item.productId);
+                    const name = product ? product.nameAr : `منتج #${item.productId}`;
+                    return `${name} × ${item.quantity}`;
+                }).join('<br>');
+                
+                const cleanPhone = order.customer.phone.replace(/^0/, '');
+                
+                return `
+                    <tr>
+                        <td><strong>#${order.id}</strong></td>
+                        <td>${order.date}</td>
+                        <td>${order.customer.name}</td>
+                        <td>${order.customer.phone}</td>
+                        <td>${order.customer.governorate} - ${order.customer.address}</td>
+                        <td>${itemsList}</td>
+                        <td><strong>${order.total} دولار</strong></td>
+                        <td>
+                            <select onchange="updateOrderStatus(${order.id}, this.value)" style="padding:6px 10px;border-radius:6px;border:2px solid #ddd;font-size:13px;font-weight:600;">
+                                <option value="جديد" ${order.status==='جديد'?'selected':''}>🆕 جديد</option>
+                                <option value="قيد التجهيز" ${order.status==='قيد التجهيز'?'selected':''}>⏳ قيد التجهيز</option>
+                                <option value="تم التوصيل" ${order.status==='تم التوصيل'?'selected':''}>✅ تم التوصيل</option>
+                                <option value="ملغي" ${order.status==='ملغي'?'selected':''}>❌ ملغي</option>
+                            </select>
+                        </td>
+                        <td>
+                            <a href="https://wa.me/963${cleanPhone}" target="_blank" class="whatsapp-link">💬 واتساب</a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            updateFilterCounts();
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            showLoading();
+            await supabase.updateOrderStatus(orderId, newStatus);
+            await fetchOrders();
+            hideLoading();
+            loadAdminOrders();
+            if (document.getElementById('dashboard').classList.contains('active')) {
+                loadDashboard();
+            }
+        }
+
+        function updateFilterCounts() {
+            document.getElementById('countAll').textContent = allOrders.length;
+            document.getElementById('countNew').textContent = allOrders.filter(o => o.status === 'جديد').length;
+            document.getElementById('countPreparing').textContent = allOrders.filter(o => o.status === 'قيد التجهيز').length;
+            document.getElementById('countCompleted').textContent = allOrders.filter(o => o.status === 'تم التوصيل').length;
+            document.getElementById('countCancelled').textContent = allOrders.filter(o => o.status === 'ملغي').length;
+        }
+
+        async function clearAllOrders() {
+            if (!confirm('⚠️ هل أنت متأكد من مسح جميع الطلبات؟ لا يمكن التراجع!')) return;
+            showLoading();
+            await supabase.deleteAllOrders();
+            await fetchOrders();
+            hideLoading();
+            currentFilter = 'all';
+            loadAdminOrders();
+            loadDashboard();
+            document.querySelectorAll('.filter-btn').forEach((btn, i) => btn.classList.toggle('active-filter', i === 0));
+        }
+
+        // ===== BRANDS =====
+        document.getElementById('brandForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editBrandId').value;
+            const brand = {
+                name: document.getElementById('brandName').value.trim(),
+                nameAr: document.getElementById('brandNameAr').value.trim(),
+                logoColor: `linear-gradient(135deg, ${document.getElementById('brandColor1').value}, ${document.getElementById('brandColor2').value})`,
+                logoUrl: currentBrandImageData
+            };
+
+            showLoading();
+            if (editId) {
+                await supabase.updateBrand(parseInt(editId), brand);
+            } else {
+                await supabase.addBrand(brand);
+            }
+            await fetchBrands();
+            hideLoading();
+
+            resetBrandForm();
+            loadBrandsTable();
+        });
+
+        function updateBrandColorPreview() {
+            document.getElementById('brandColorPreview').style.background =
+                `linear-gradient(135deg, ${document.getElementById('brandColor1').value}, ${document.getElementById('brandColor2').value})`;
+        }
+
+        function resetBrandForm() {
+            document.getElementById('brandForm').reset();
+            document.getElementById('editBrandId').value = '';
+            document.getElementById('brandFormTitle').textContent = '➕ إضافة ماركة جديدة';
+            document.getElementById('saveBrandBtn').textContent = '💾 حفظ الماركة';
+            document.getElementById('brandColor1').value = '#FFB800';
+            document.getElementById('brandColor2').value = '#FFD166';
+            updateBrandColorPreview();
+            removeBrandImage();
+        }
+
+        function editBrand(id) {
+            const brand = allBrands.find(b => b.id === id);
+            if (!brand) return;
+
+            document.getElementById('editBrandId').value = brand.id;
+            document.getElementById('brandName').value = brand.name;
+            document.getElementById('brandNameAr').value = brand.nameAr;
+            document.getElementById('brandFormTitle').textContent = '✏️ تعديل ماركة';
+            document.getElementById('saveBrandBtn').textContent = '💾 تحديث الماركة';
+            document.getElementById('brandColorPreview').style.background = brand.logoColor;
+
+            if (brand.logoUrl) {
+                currentBrandImageData = brand.logoUrl;
+                const preview = document.getElementById('brandImagePreview');
+                preview.src = brand.logoUrl;
+                preview.style.display = 'inline-block';
+                document.getElementById('removeBrandImageBtn').style.display = 'inline-block';
+            } else {
+                removeBrandImage();
+            }
+
+            document.getElementById('brandForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function deleteBrand(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه الماركة؟ سيتم إزالة ربطها من المنتجات.')) return;
+            showLoading();
+            await supabase.deleteBrand(id);
+            await fetchBrands();
+            await fetchProducts();
+            hideLoading();
+            loadBrandsTable();
+        }
+
+        function loadBrandsTable() {
+            const tbody = document.getElementById('brandsTableBody');
+
+            if (allBrands.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#888;padding:30px;">لا توجد ماركات</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = allBrands.map((b, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${b.logoUrl ? `<img src="${b.logoUrl}" class="color-dot" style="object-fit:contain;background:#fafafa;">` : `<span class="color-dot" style="background:${b.logoColor};"></span>`}</td>
+                    <td>${b.name}</td>
+                    <td>${b.nameAr}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="icon-btn edit-btn" onclick="editBrand(${b.id})">✏️ تعديل</button>
+                            <button class="icon-btn delete-btn" onclick="deleteBrand(${b.id})">🗑️ حذف</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // ===== INIT =====
+        async function init() {
+            await fetchProducts();
+            await fetchBrands();
+            await fetchOrders();
+            loadDashboard();
+            loadProductsTable();
+            updateFilterCounts();
+        }
+
+        init();
+    </script>
+</body>
+</html>

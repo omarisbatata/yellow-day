@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<script src="js/supabase.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellow Day - صيدلية اونلاين</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <img src="img/logo.jpeg" alt="Yellow Day" class="splash-logo">
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="logo-img">
+                <div class="logo-text">
+                    <h1>Yellow Day</h1>
+                    <span>صيدليتك اونلاين</span>
+                </div>
+            </div>
+            <div class="header-actions">
+                <input type="text" class="search-bar" placeholder="ابحث عن منتج...">
+                <div class="user-menu">
+                    <a href="account.html" id="userNameDisplay">حسابي</a>
+                    <a href="cart.html" class="cart-icon">
+                        🛒 <span id="cartCount">0</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <a href="index.html">الرئيسية</a>
+            <a href="#products" onclick="filterByCategory('all')">الكل</a>
+            <a href="#products" onclick="filterByCategory('فيتامينات')">الفيتامينات</a>
+            <a href="#products" onclick="filterByCategory('عناية بالبشرة')">العناية بالبشرة</a>
+            <a href="#products" onclick="filterByCategory('مكملات غذائية')">المكملات الغذائية</a>
+            <a href="#brands">الماركات</a>
+            <a href="#">تواصل معنا</a>
+        </nav>
+    </header>
+
+    <!-- Hero Banner -->
+    <section class="hero">
+        <img src="img/logo.jpeg" alt="Yellow Day" class="hero-logo-img">
+        <div class="hero-content">
+            <h2>صحتك تهمنا</h2>
+            <p>فيتامينات ومكملات غذائية أصلية - توصيل سريع - دفع آمن</p>
+            <button onclick="window.location.href='#products'">تسوق الآن</button>
+        </div>
+    </section>
+
+    <!-- Brands Section -->
+    <section class="brands-section" id="brands">
+        <h2>الماركات</h2>
+        <div class="brands-grid" id="brandsGrid">
+            <!-- Brands loaded by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products-section" id="products">
+        <h2>منتجاتنا</h2>
+        <div class="filter-bar" id="categoryFilterBar">
+            <!-- Category filter buttons loaded by JavaScript -->
+        </div>
+        <div class="active-filters" id="activeFilters"></div>
+        <div class="products-grid" id="productsGrid">
+            <!-- Products loaded by JavaScript -->
+        </div>
+    </section>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/963944793354" class="whatsapp-float" target="_blank" title="تواصل معنا واتساب">
+        💬
+    </a>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section footer-brand">
+                <img src="img/logo.jpeg" alt="Yellow Day" class="footer-logo-img">
+                <div>
+                    <h3>Yellow Day</h3>
+                    <p>صيدليتك الموثوقة - منتجات أصلية 100%</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>روابط سريعة</h3>
+                <a href="#">سياسة الخصوصية</a>
+                <a href="#">الشروط والأحكام</a>
+                <a href="#">اتصل بنا</a>
+            </div>
+            <div class="footer-section">
+                <h3>تواصل معنا</h3>
+                <p>📞 +963 944 793 354</p>
+                <p>📍 سوريا</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Yellow Day - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yellow Day - منصة صيدلية إلكترونية</title>
+    <link rel="icon" type="image/jpeg" href="img/logo.jpeg">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+            background: #f8f9fb;
+            color: #1a1a2e;
+            direction: rtl;
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .document {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        @media print {
+            body { background: #fff; margin: 0; }
+            .document { max-width: 100%; margin: 0; box-shadow: none; border-radius: 0; }
+            .no-print { display: none !important; }
+            @page { margin: 20mm; size: A4; }
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+        h2 { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+        h3 { font-size: 15px; font-weight: 600; color: #1a1a2e; }
+        p, li { font-size: 13px; color: #4a4a5a; }
+
+        /* ===== HEADER ===== */
+        .header {
+            padding: 48px 56px 40px;
+            border-bottom: 1px solid #ebecef;
+        }
+
+        .header .brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #e5a600;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .header .doc-type {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #9ca3af;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .header .summary {
+            font-size: 14px;
+            color: #6b7280;
+            max-width: 500px;
+        }
+
+        .header .meta {
+            display: flex;
+            gap: 40px;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .header .meta strong {
+            color: #4a4a5a;
+            font-weight: 600;
+        }
+
+        /* ===== SECTION ===== */
+        .section {
+            padding: 40px 56px;
+            border-bottom: 1px solid #ebecef;
+        }
+
+        .section:last-of-type { border-bottom: none; }
+
+        .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        /* ===== GRID ===== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: #f8f9fb;
+            padding: 20px;
+            border-radius: 4px;
+            border: 1px solid #ebecef;
+        }
+
+        .card h3 {
+            margin-bottom: 6px;
+        }
+
+        .card p {
+            font-size: 12px;
+            color: #6b7280;
+            margin: 0;
+        }
+
+        .card .icon {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            text-align: right;
+            padding: 10px 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid #ebecef;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #ebecef;
+            color: #4a4a5a;
+        }
+
+        tr:last-child td { border-bottom: none; }
+
+        .text-right { text-align: left; }
+        .text-bold { font-weight: 700; color: #1a1a2e; }
+
+        /* ===== BADGE ===== */
+        .badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-blue { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+
+        /* ===== LIST ===== */
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            padding: 6px 0;
+            font-size: 13px;
+            color: #4a4a5a;
+        }
+
+        .check-list li::before {
+            content: '✓ ';
+            color: #059669;
+            font-weight: 700;
+        }
+
+        /* ===== HIGHLIGHT BOX ===== */
+        .highlight {
+            background: #fefce8;
+            border: 1px solid #fde68a;
+            padding: 16px 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #713f12;
+            margin-top: 16px;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            padding: 24px 56px;
+            background: #f8f9fb;
+            border-top: 1px solid #ebecef;
+            font-size: 11px;
+            color: #9ca3af;
+            text-align: center;
+        }
+
+        /* ===== PRINT BUTTON ===== */
+        .print-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            background: #1a1a2e;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 999;
+            letter-spacing: 0.5px;
+        }
+
+        .print-btn:hover { background: #2d2d4a; }
+
+        /* ===== PAGE BREAK ===== */
+        .page-break { page-break-before: always; }
+
+        @media (max-width: 700px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .header, .section { padding: 32px 24px; }
+            .header .meta { flex-direction: column; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="print-btn no-print" onclick="window.print()">🖨️ طباعة / PDF</button>
+
+    <div class="document">
+
+        <!-- ===== COVER ===== -->
+        <div class="header">
+            <div class="doc-type">وثيقة تعريفية</div>
+            <div class="brand">Yellow Day</div>
+            <h1>منصة صيدلية إلكترونية متكاملة</h1>
+            <p class="summary">موقع احترافي لصيدليتك مع لوحة تحكم كاملة، إدارة مخزون، تقارير مبيعات، وربط مباشر مع واتساب. جاهز للتسليم الفوري.</p>
+            <div class="meta">
+                <span>الإصدار: <strong>1.0</strong></span>
+                <span>التاريخ: <strong>يونيو 2026</strong></span>
+                <span>عدد الصفحات: <strong>12 صفحة</strong></span>
+                <span>الحالة: <strong>✅ جاهز للتسليم</strong></span>
+            </div>
+        </div>
+
+        <!-- ===== OVERVIEW ===== -->
+        <div class="section">
+            <div class="section-label">نظرة عامة</div>
+            <h2>ماذا يقدم Yellow Day؟</h2>
+            <div class="grid-3">
+                <div class="card">
+                    <div class="icon">🛒</div>
+                    <h3>متجر إلكتروني كامل</h3>
+                    <p>صفحة رئيسية، منتجات، سلة تسوق، حساب عميل، تسجيل دخول - 12 صفحة متكاملة</p>
+                </div>
+                <div class="card">
+                    <div class="icon">📊</div>
+                    <h3>لوحة تحكم احترافية</h3>
+                    <p>إدارة المنتجات، متابعة الطلبات، المخزون، تقارير المبيعات، رسوم بيانية</p>
+                </div>
+                <div class="card">
+                    <div class="icon">💬</div>
+                    <h3>ربط كامل مع واتساب</h3>
+                    <p>الطلبات تصل مباشرة للصيدلية - إشعارات تلقائية للعملاء عند تغيير حالة الطلب</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FEATURES TABLE ===== -->
+        <div class="section">
+            <div class="section-label">المميزات</div>
+            <h2>جميع مميزات المنصة</h2>
+            <table>
+                <thead>
+                    <tr><th>الميزة</th><th>الوصف</th><th style="text-align:left;">لـ</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="text-bold">إضافة وتعديل المنتجات</td><td>اسم، سعر، وصف، تصنيف، مادة فعالة، صورة ملونة</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">إدارة المخزون الذكي</td><td>كمية لكل منتج - ينتهي تلقائياً - تنبيهات عند الكميات المحدودة</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">متابعة الطلبات</td><td>تغيير الحالة (جديد، قيد التجهيز، تم التوصيل، ملغي) بألوان مميزة</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">فلترة الطلبات</td><td>تصفية حسب الحالة - بحث برقم هاتف العميل</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">تقارير المبيعات</td><td>مبيعات اليوم، الأسبوع، الشهر - المنتجات الأكثر مبيعاً - رسم بياني</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">تنبيهات صوتية</td><td>صوت تنبيه عند وصول طلب جديد للوحة التحكم</td><td class="text-right"><span class="badge badge-green">المالك</span></td></tr>
+                    <tr><td class="text-bold">بحث متقدم</td><td>بحث بالاسم، المادة الفعالة، التصنيف</td><td class="text-right"><span class="badge badge-blue">العميل</span></td></tr>
+                    <tr><td class="text-bold">سلة تسوق ذكية</td><td>تمنع الطلب أكثر من المخزون - رسائل تنبيه منبثقة</td><td class="text-right"><span class="badge badge-blue">العميل</span></td></tr>
+                    <tr><td class="text-bold">حسابات العملاء</td><td>تسجيل دخول - متابعة الطلبات السابقة وحالتها</td><td class="text-right"><span class="badge badge-blue">العميل</span></td></tr>
+                    <tr><td class="text-bold">عرض حالة المخزون</td><td>متوفر ✅ - كمية محدودة ⚠️ - غير متوفر ❌</td><td class="text-right"><span class="badge badge-blue">العميل</span></td></tr>
+                    <tr><td class="text-bold">الوضع الليلي</td><td>Dark mode كامل للموقع ولوحة التحكم</td><td class="text-right"><span class="badge badge-purple">الطرفين</span></td></tr>
+                    <tr><td class="text-bold">تصميم متجاوب</td><td>يعمل على الكمبيوتر، الموبايل، التابلت</td><td class="text-right"><span class="badge badge-purple">الطرفين</span></td></tr>
+                    <tr><td class="text-bold">إشعارات واتساب تلقائية</td><td>رسالة للعميل عند تجهيز أو توصيل طلبه</td><td class="text-right"><span class="badge badge-purple">الطرفين</span></td></tr>
+                    <tr><td class="text-bold">أمان وحماية</td><td>لوحة تحكم محمية بكلمة مرور - جلسة تلقائية</td><td class="text-right"><span class="badge badge-purple">تقني</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== TECH STACK ===== -->
+        <div class="section">
+            <div class="section-label">التقنيات المستخدمة</div>
+            <h2>المواصفات التقنية</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>🖥️ الواجهة الأمامية</h3>
+                    <p>HTML5, CSS3, JavaScript خالص - بدون أطر عمل ثقيلة - تحميل فائق السرعة</p>
+                </div>
+                <div class="card">
+                    <h3>🗄️ قاعدة البيانات</h3>
+                    <p>Supabase (PostgreSQL) - سحابية - البيانات متزامنة بين جميع الأجهزة</p>
+                </div>
+                <div class="card">
+                    <h3>🌐 الاستضافة</h3>
+                    <p>GitHub Pages - مجانية مدى الحياة - إمكانية ربط نطاق مخصص</p>
+                </div>
+                <div class="card">
+                    <h3>📱 التوافق</h3>
+                    <p>تصميم متجاوب بالكامل - RTL عربي - جميع المتصفحات والأجهزة</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PAGES BREAKDOWN ===== -->
+        <div class="section">
+            <div class="section-label">الصفحات</div>
+            <h2>هيكل الموقع (12 صفحة)</h2>
+            <table>
+                <thead>
+                    <tr><th>الصفحة</th><th>الوظيفة</th><th style="text-align:left;">النوع</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="text-bold">index.html</td><td>الصفحة الرئيسية - عرض المنتجات مع بحث</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">product.html</td><td>صفحة تفاصيل المنتج مع حالة المخزون</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">cart.html</td><td>سلة التسوق مع التحقق من الكميات</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">checkout.html</td><td>إتمام الطلب وإرساله عبر واتساب</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">signup.html</td><td>إنشاء حساب جديد للعملاء</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">login.html</td><td>تسجيل دخول العملاء</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">account.html</td><td>حساب العميل - عرض الطلبات السابقة وحالتها</td><td class="text-right"><span class="badge badge-blue">عامة</span></td></tr>
+                    <tr><td class="text-bold">admin/login.html</td><td>تسجيل دخول لوحة التحكم (محمي)</td><td class="text-right"><span class="badge badge-green">إدارة</span></td></tr>
+                    <tr><td class="text-bold">admin/panel.html</td><td>لوحة التحكم الكاملة</td><td class="text-right"><span class="badge badge-green">إدارة</span></td></tr>
+                    <tr><td class="text-bold">css/style.css</td><td>جميع التنسيقات والألوان والوضع الليلي</td><td class="text-right"><span class="badge badge-purple">نظام</span></td></tr>
+                    <tr><td class="text-bold">js/app.js</td><td>وظائف المتجر الرئيسية</td><td class="text-right"><span class="badge badge-purple">نظام</span></td></tr>
+                    <tr><td class="text-bold">js/cart.js</td><td>منطق السلة والمخزون</td><td class="text-right"><span class="badge badge-purple">نظام</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== FLOW ===== -->
+        <div class="section">
+            <div class="section-label">آلية العمل</div>
+            <h2>كيف يعمل الموقع؟</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">👤</div>
+                    <h3>تجربة العميل</h3>
+                    <p>يتصفح المنتجات ← يضيف للسلة ← يسجل دخول ← يتم الطلب ← تصل رسالة واتساب للصيدلية ← يتابع حالة طلبه من حسابه</p>
+                </div>
+                <div class="card">
+                    <div class="icon">👨‍💼</div>
+                    <h3>تجربة الصيدلي</h3>
+                    <p>يستلم الطلب عبر واتساب ← يدخل لوحة التحكم ← يغير حالة الطلب ← العميل يستلم إشعار تلقائي ← المخزون يتحدث تلقائياً</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== WHAT YOU GET ===== -->
+        <div class="section">
+            <div class="section-label">التسليم</div>
+            <h2>ماذا تحصل عند الاستلام؟</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="icon">💻</div>
+                    <h3>الكود المصدري كامل</h3>
+                    <p>جميع ملفات HTML, CSS, JavaScript مع حق الوصول والتعديل الكامل</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🗄️</div>
+                    <h3>قاعدة البيانات</h3>
+                    <p>Supabase مهيأة بالكامل مع جميع الجداول والمنتجات الافتراضية</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🌐</div>
+                    <h3>الموقع على الإنترنت</h3>
+                    <p>مرفوع على GitHub Pages برابط مجاني - جاهز للاستخدام الفوري</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🎨</div>
+                    <h3>تخصيص كامل</h3>
+                    <p>تعديل اسم الصيدلية، رقم الهاتف، المحافظات، الألوان حسب هويتك</p>
+                </div>
+            </div>
+            <div class="highlight">
+                <strong>🎁 يشمل أيضاً:</strong> تدريب كامل على استخدام لوحة التحكم + دعم فني لمدة 3 أشهر بعد التسليم
+            </div>
+        </div>
+
+        <!-- ===== CONTACT ===== -->
+        <div class="section" style="text-align: center;">
+            <div class="section-label">تواصل</div>
+            <h2>للاستفسار أو الطلب</h2>
+            <p style="margin-bottom: 12px; color: #6b7280;">التسليم فوري بعد الاتفاق</p>
+            <p style="font-size: 22px; font-weight: 700; color: #e5a600; direction: ltr;">+963 981 779 965</p>
+            <p style="font-size: 12px; color: #9ca3af; margin-top: 4px;">واتساب / اتصال مباشر</p>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            Yellow Day Pharmacy Platform &copy; 2026
+        </div>
+
+    </div>
+
+</body>
+</html>

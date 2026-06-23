@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Yellow Day</title>
+    <link rel="icon" type="image/jpeg" href="../img/logo.jpeg">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        body {
+            background: #1A1A2E;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            direction: rtl;
+        }
+
+        .login-container {
+            background: white;
+            padding: 50px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 400px;
+            text-align: center;
+        }
+
+        .login-container .logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .login-container .logo-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            border-radius: 50%;
+            animation: logoBreathe 3.5s ease-in-out infinite;
+        }
+
+        @keyframes logoBreathe {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.08) rotate(3deg); }
+        }
+
+        .login-container .logo-text h1 {
+            color: #E5A600;
+            font-size: 28px;
+            letter-spacing: 2px;
+        }
+
+        .login-container .logo-text span {
+            color: #888;
+            font-size: 13px;
+            display: block;
+        }
+
+        .lock-icon {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #1A1A2E;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 2px solid #E0E0E0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: right;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #FFB800;
+            box-shadow: 0 0 0 3px rgba(255,184,0,0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: #FFB800;
+            color: #1A1A2E;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #E5A600;
+        }
+
+        .error-msg {
+            color: #F44336;
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #888;
+            font-size: 13px;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo">
+            <img src="../img/logo.jpeg" alt="Yellow Day" class="logo-img">
+            <div class="lock-icon">🔐</div>
+            <div class="logo-text">
+                <h1>Yellow Day</h1>
+                <span>Admin Panel</span>
+            </div>
+        </div>
+        
+        <h2>تسجيل دخول المدير</h2>
+        
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور" autocomplete="off">
+        </div>
+        
+        <button class="btn" onclick="checkPassword()">دخول</button>
+        
+        <p class="error-msg" id="errorMsg">❌ كلمة المرور غير صحيحة</p>
+        
+        <a href="../index.html" class="back-link">← العودة للمتجر</a>
+    </div>
+
+    <script>
+        // ===== SIMPLE PASSWORD CHECK =====
+        // Password is split and combined to avoid plain text
+        function getPassword() {
+            var part1 = "255";
+            var part2 = "65";
+            var part3 = "10";
+            return part1 + part2 + part3;
+        }
+
+        function checkPassword() {
+            var entered = document.getElementById('adminPassword').value;
+            var correct = getPassword();
+            var errorMsg = document.getElementById('errorMsg');
+            
+            if (entered === correct) {
+                // Create session
+                sessionStorage.setItem('adminSession', 'yes');
+                sessionStorage.setItem('adminLoginTime', Date.now().toString());
+                // Redirect
+                window.location.href = 'panel.html';
+            } else {
+                errorMsg.classList.add('show');
+                document.getElementById('adminPassword').value = '';
+                setTimeout(function() {
+                    errorMsg.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        // Auto redirect if already logged in
+        if (sessionStorage.getItem('adminSession')) {
+            window.location.href = 'panel.html';
+        }
+    </script>
+</body>
+</html>
