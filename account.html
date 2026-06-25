@@ -160,9 +160,8 @@
             const ordersDiv = document.getElementById('userOrders');
             
             try {
-                const allOrders = await supabase.getOrders();
-                const userOrders = allOrders.filter(o => o.customer.phone === user.phone);
-                
+                const userOrders = await supabase.getOrdersByPhone(user.phone);
+
                 if (userOrders.length === 0) {
                     ordersDiv.innerHTML = `
                         <div class="no-orders">

@@ -191,19 +191,7 @@
             for (const item of cart) {
                 const product = getProductById(item.productId);
                 if (product && product.inStock) {
-                    const newQuantity = Math.max(0, product.stockQuantity - item.quantity);
-                    const newInStock = newQuantity > 0;
-                    await supabase.updateProduct(product.id, {
-                        name: product.name,
-                        nameAr: product.nameAr,
-                        price: product.price,
-                        category: product.category,
-                        desc: product.desc,
-                        fullDesc: product.fullDesc || '',
-                        imageColor: product.imageColor,
-                        inStock: newInStock,
-                        stockQuantity: newQuantity
-                    });
+                    await supabase.decrementStock(product.id, item.quantity);
                 }
             }
             

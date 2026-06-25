@@ -434,7 +434,7 @@
 <body class="admin-body">
 
     <script>
-        if (!sessionStorage.getItem('adminSession')) {
+        if (!supabase.isAdminLoggedIn()) {
             window.location.href = 'login.html';
         }
     </script>
@@ -737,15 +737,9 @@
 
     <script>
         // ===== SESSION =====
-        function adminLogout() {
-            sessionStorage.removeItem('adminSession');
-            sessionStorage.removeItem('adminLoginTime');
+        async function adminLogout() {
+            await supabase.adminLogout();
             window.location.href = 'login.html';
-        }
-
-        const loginTime = parseInt(sessionStorage.getItem('adminLoginTime') || '0');
-        if (loginTime && (Date.now() - loginTime > 7200000)) {
-            adminLogout();
         }
 
         // ===== GLOBAL STATE =====
@@ -1293,6 +1287,11 @@
 
         // ===== INIT =====
         async function init() {
+            const tokenOk = await supabase.ensureAdminToken();
+            if (!tokenOk) {
+                window.location.href = 'login.html';
+                return;
+            }
             await fetchProducts();
             await fetchBrands();
             await fetchOrders();

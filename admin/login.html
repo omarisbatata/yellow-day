@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Yellow Day</title>
     <link rel="icon" type="image/jpeg" href="../img/logo.jpeg">
+    <script src="../js/supabase.js"></script>
     <style>
         * {
             margin: 0;
@@ -163,7 +164,7 @@
             <input type="password" id="adminPassword" placeholder="أدخل كلمة المرور" autocomplete="off">
         </div>
         
-        <button class="btn" onclick="checkPassword()">دخول</button>
+        <button class="btn" id="loginBtn" onclick="checkPassword()">دخول</button>
         
         <p class="error-msg" id="errorMsg">❌ كلمة المرور غير صحيحة</p>
         
@@ -171,27 +172,23 @@
     </div>
 
     <script>
-        // ===== SIMPLE PASSWORD CHECK =====
-        // Password is split and combined to avoid plain text
-        function getPassword() {
-            var part1 = "255";
-            var part2 = "65";
-            var part3 = "10";
-            return part1 + part2 + part3;
-        }
-
-        function checkPassword() {
+        // ===== REAL LOGIN (Supabase Auth) =====
+        async function checkPassword() {
             var entered = document.getElementById('adminPassword').value;
-            var correct = getPassword();
             var errorMsg = document.getElementById('errorMsg');
-            
-            if (entered === correct) {
-                // Create session
-                sessionStorage.setItem('adminSession', 'yes');
-                sessionStorage.setItem('adminLoginTime', Date.now().toString());
-                // Redirect
+            var btn = document.getElementById('loginBtn');
+
+            errorMsg.classList.remove('show');
+            btn.disabled = true;
+            btn.textContent = 'جاري التحقق...';
+
+            const ok = await supabase.adminLogin(ADMIN_EMAIL, entered);
+
+            if (ok) {
                 window.location.href = 'panel.html';
             } else {
+                btn.disabled = false;
+                btn.textContent = 'دخول';
                 errorMsg.classList.add('show');
                 document.getElementById('adminPassword').value = '';
                 setTimeout(function() {
@@ -208,7 +205,7 @@
         });
 
         // Auto redirect if already logged in
-        if (sessionStorage.getItem('adminSession')) {
+        if (supabase.isAdminLoggedIn()) {
             window.location.href = 'panel.html';
         }
     </script>
